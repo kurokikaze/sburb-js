@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<head>	
+	<script type="text/javascript" src="crafty.js"></script>
+	<title>SBURB</title>
+</head>
+<body>
+	<script type="text/javascript">
+	window.onload = function () {
+		Crafty.init(650, 450);
+
+		Crafty.scene("loading", function () {
+			//load takes an array of assets and a callback when complete
+			Crafty.load(["egbert_room.gif","jade_small.gif"], function () {
+				Crafty.sprite(81, 127, "jade_small.gif", {
+					player: [0, 0]
+				});
+				Crafty.scene("main"); //when everything is loaded, run the main scene
+			});
+
+			//black background with some loading text
+			Crafty.background("#000");
+			Crafty.e("2D, DOM, Text").attr({ w: 100, h: 20, x: 150, y: 120 })
+					.text("SBURB Loading")
+					.css({ "text-align": "center" });
+		});
+		
+		Crafty.c("LeftControls", {
+			init: function() {
+				this.requires('Multiway');
+			},
+			
+			leftControls: function(speed) {
+				this.multiway(speed, {W: -90, S: 90, D: 0, A: 180})
+				return this;
+			}
+			
+		});
+		
+		Crafty.c('Human', {
+			Human: function() {
+				//setup animations
+				this.requires("SpriteAnimation, Collision, Grid")
+				//.animate("walk_left", 6, 3, 8)
+				//.animate("walk_right", 9, 3, 11)
+				//.animate("walk_up", 3, 3, 5)
+				//.animate("walk_down", 0, 3, 2)
+				.bind("NewDirection", //change direction when a direction change event is received
+					function (direction) {
+						if (direction.x < 0) {
+					//		if (!this.isPlaying("walk_left"))
+					//			this.stop().animate("walk_left", 10, -1);
+						}
+						if (direction.x > 0) {
+					//		if (!this.isPlaying("walk_right"))
+					//			this.stop().animate("walk_right", 10, -1);
+						}
+						if (direction.y < 0) {
+					//		if (!this.isPlaying("walk_up"))
+					//			this.stop().animate("walk_up", 10, -1);
+						}
+						if (direction.y > 0) {
+					//		if (!this.isPlaying("walk_down"))
+					//			this.stop().animate("walk_down", 10, -1);
+						}
+						if(!direction.x && !direction.y) {
+							this.stop();
+						}
+				})
+				.onHit("solid", function () {
+					//Move unit out of solid tile
+				})
+				.bind('Moved', function(from) {
+					if(this.hit('solid')){
+						this.attr({x: from.x, y:from.y});
+					}
+				})
+				.onHit("fire", function() {
+					this.destroy();
+				// Subtract life and play scream sound :-)
+				});
+			return this;
+		}
+	});
+		Crafty.scene("main",function() {
+			Crafty.background('url("egbert_room.gif")');
+			var player1 = Crafty.e("2D, DOM, Human, player, LeftControls")
+				.attr({ x: 325, y: 225, z: 1 })
+				.leftControls(3)
+				.Human();;
+		});
+		
+		// YOUR GAME CODE
+		Crafty.scene("loading");
+	};
+	</script>
+</body>
+</html>
