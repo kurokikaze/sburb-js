@@ -2,7 +2,7 @@
 <head>	
 	<script type="text/javascript" src="crafty.js"></script>
 	<title>SBURB</title>
-</head>
+</head><!-- 84x138 -->
 <body>
 	<script type="text/javascript">
 	window.onload = function () {
@@ -10,9 +10,13 @@
 
 		Crafty.scene("loading", function () {
 			//load takes an array of assets and a callback when complete
-			Crafty.load(["egbert_room.gif","jade_small.gif"], function () {
-				Crafty.sprite(81, 127, "jade_small.gif", {
-					player: [0, 0]
+			Crafty.load(["egbert_room.gif", "jake_necessary.gif"], function () {
+				//Crafty.sprite(81, 127, "jade_small.gif", {
+				//	player: [0, 0]
+				//});
+				Crafty.sprite(84, 138, "jake_necessary.gif", {
+					player: [0, 0],
+					player_turnwise: [5, 0],
 				});
 				Crafty.scene("main"); //when everything is loaded, run the main scene
 			});
@@ -30,7 +34,7 @@
 			},
 			
 			leftControls: function(speed) {
-				this.multiway(speed, {W: -90, S: 90, D: 0, A: 180})
+				this.multiway(speed, {W: -90, S: 90, D: 0, A: 180});
 				return this;
 			}
 			
@@ -39,20 +43,23 @@
 		Crafty.c('Human', {
 			Human: function() {
 				//setup animations
+				var dir_last = 'right';
 				this.requires("SpriteAnimation, Collision, Grid")
-				//.animate("walk_left", 6, 3, 8)
-				//.animate("walk_right", 9, 3, 11)
+				.animate("walk_left", 3, 0, 4)
+				.animate("walk_right", 1, 0, 2)
 				//.animate("walk_up", 3, 3, 5)
 				//.animate("walk_down", 0, 3, 2)
 				.bind("NewDirection", //change direction when a direction change event is received
 					function (direction) {
 						if (direction.x < 0) {
-					//		if (!this.isPlaying("walk_left"))
-					//			this.stop().animate("walk_left", 10, -1);
+							if (!this.isPlaying("walk_left"))
+								this.stop().animate("walk_left", 10, -1);
+								dir_last = 'left';
 						}
 						if (direction.x > 0) {
-					//		if (!this.isPlaying("walk_right"))
-					//			this.stop().animate("walk_right", 10, -1);
+							if (!this.isPlaying("walk_right"))
+								this.stop().animate("walk_right", 10, -1);
+								dir_last = 'right';
 						}
 						if (direction.y < 0) {
 					//		if (!this.isPlaying("walk_up"))
@@ -63,7 +70,11 @@
 					//			this.stop().animate("walk_down", 10, -1);
 						}
 						if(!direction.x && !direction.y) {
-							this.stop();
+							if (dir_last == 'right') {
+								this.stop().sprite(0,0);
+							} else {
+								this.stop().sprite(5,0);
+							}
 						}
 				})
 				.onHit("solid", function () {
