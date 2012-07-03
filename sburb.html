@@ -25,6 +25,19 @@
 					empty: [0, 1],
 					red: [1, 1],
 				});
+				
+				Crafty.sprite(45, 145, "cd_rack.gif", {
+					cd_rack: [0, 0]
+				});
+				
+				Crafty.sprite(212, 187, "pc_table.gif", {
+					pc_table: [0, 0]
+				});
+				
+				Crafty.sprite(151, 168, "chest.gif", {
+					magician_chest: [0, 0],
+				});
+				
 				Crafty.scene("main"); //when everything is loaded, run the main scene
 			});
 
@@ -48,19 +61,21 @@
 		});
 		
 		Crafty.c('Item', {
-			Item: function() {
-				this.requires('Collision, Grid, WiredHitBox')
-				.collision([0,0], [63,0], [63,34], [0,34]);
+			Item: function(bound_box) {
+				this.requires("Collision, Grid")
+				.collision(bound_box);
+				return this;
 			}
+			
 		});
 		Crafty.c('Human', {
 			Human: function() {
 				//setup animations
 				var dir_last = 'right';
-				this.requires("SpriteAnimation, Collision, WiredHitBox, Grid")
+				this.requires("SpriteAnimation, Collision, Grid, WiredHitBox")
 				.animate("walk_left", 3, 0, 4)
 				.animate("walk_right", 1, 0, 2)
-				.collision([0,110], [84, 110], [84,138],[0,138])
+				.collision([0,90], [84, 90], [84,118],[0,118])
 				//.animate("walk_up", 3, 3, 5)
 				//.animate("walk_down", 0, 3, 2)
 				.bind("NewDirection", //change direction when a direction change event is received
@@ -84,10 +99,6 @@
 									this.stop().animate("walk_left", 10, -1);							
 							}
 						}
-						//if () {
-					//		if (!this.isPlaying("walk_down"))
-					//			this.stop().animate("walk_down", 10, -1);
-						//}
 						if(!direction.x && !direction.y) {
 							if (dir_last == 'right') {
 								this.stop().sprite(0,0);
@@ -98,12 +109,13 @@
 				})
 				.onHit("Item", function () {
 					//Move unit out of solid tile
-					console.log('Solid: ');
+					//console.log('Solid: ');
 				})
 				.bind('Moved', function(from) {
+					this.z = this._y;
 					col_obj = this.hit('Item');
 					if (col_obj){
-						console.log('Solid: ' + col_obj[0].type);
+						console.log('Solid (' + col_obj.length + '): ' + col_obj[0].type);
 						if (col_obj[0].type == 'SAT') {
 							this.attr({x: from.x, y:from.y});
 						}
@@ -113,29 +125,32 @@
 					this.destroy();
 				// Subtract life and play scream sound :-)
 				});
-			return this;
-		}
-	});
+				return this;
+			}
+		});
 		Crafty.scene("main",function() {
 			Crafty.background('url("egbert_room.gif")');
 			var iso = Crafty.isometric.size(64);//.centerAt(10,10);
-			/*var area = iso.area(); //get the area
-			for(var y = area.y.start;y <= area.y.end;y++){
+			var area = iso.area(); //get the area
+			/*for(var y = area.y.start;y <= area.y.end;y++){
 			  for(var x = area.x.start ;x <= area.x.end;x++){
-				if (x == 3) {
+				//if (x == 3) {
 				  iso.place(x,y,0,Crafty.e("2D, DOM, Text").text("[" + x + ":" + y + "]")); //Display tiles in the Screen
-				  }
+				//  }
 				  
 			  }
 			}*/
 			//var player1 = ;;
 				
 			iso.place(2, 17, 1, Crafty.e("2D, DOM, Human, player, LeftControls")
-				.attr({ x: 325, y: 225, z: 1 })				
+				//.attr({ x: 325, y: 225, z: 1 })				
 				.leftControls(5)
 				.Human());
 			
-			iso.place(3,12,0, Crafty.e("2D, DOM, Item, nails"));
+			iso.place(3,12,0, Crafty.e("2D, DOM, Item, nails").Item(new Crafty.polygon([0,0],[63,0],[63,34],[0,34])));
+			iso.place(8,13,0, Crafty.e("2D, DOM, Item, magician_chest").Item(new Crafty.polygon([11,115],[104,74],[150,92],[150,139],[108,160])).attr({z:240}));
+			iso.place(2,17,0, Crafty.e("2D, DOM, Item, cd_rack").Item(new Crafty.polygon([1,133],[24,144],[43,130],[22,119])).attr({z:300}));
+			iso.place(3,17,0, Crafty.e("2D, DOM, Item, pc_table").Item(new Crafty.polygon([5,172],[80,120],[210,187],[23,187])).attr({z:330}));
 			iso.place(6,15,0, Crafty.e("2D, DOM, hammer"));
 			iso.place(7,16,1, Crafty.e("2D, DOM, nails"));
 		});
