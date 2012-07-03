@@ -22,7 +22,8 @@
 				Crafty.sprite(63, 34, "hammer_nails.gif", {
 					hammer: [0, 0],
 					nails: [1, 0],
-					empty: [2, 0]
+					empty: [0, 1],
+					red: [1, 1],
 				});
 				Crafty.scene("main"); //when everything is loaded, run the main scene
 			});
@@ -48,17 +49,18 @@
 		
 		Crafty.c('Item', {
 			Item: function() {
-				this.requires('Collision, Grid');
+				this.requires('Collision, Grid, WiredHitBox')
+				.collision([0,0], [63,0], [63,34], [0,34]);
 			}
 		});
 		Crafty.c('Human', {
 			Human: function() {
 				//setup animations
 				var dir_last = 'right';
-				this.requires("SpriteAnimation, Collision, Grid")
-				.collision([0,110], [84, 110], [84,138],[0,138])
+				this.requires("SpriteAnimation, Collision, WiredHitBox, Grid")
 				.animate("walk_left", 3, 0, 4)
 				.animate("walk_right", 1, 0, 2)
+				.collision([0,110], [84, 110], [84,138],[0,138])
 				//.animate("walk_up", 3, 3, 5)
 				//.animate("walk_down", 0, 3, 2)
 				.bind("NewDirection", //change direction when a direction change event is received
@@ -94,13 +96,17 @@
 							}
 						}
 				})
-				.onHit("solid", function () {
+				.onHit("Item", function () {
 					//Move unit out of solid tile
-					console.log('Solid');
+					console.log('Solid: ');
 				})
 				.bind('Moved', function(from) {
-					if(this.hit('solid')){
-						this.attr({x: from.x, y:from.y});
+					col_obj = this.hit('Item');
+					if (col_obj){
+						console.log('Solid: ' + col_obj[0].type);
+						if (col_obj[0].type == 'SAT') {
+							this.attr({x: from.x, y:from.y});
+						}
 					}
 				})
 				.onHit("fire", function() {
@@ -125,13 +131,13 @@
 			//var player1 = ;;
 				
 			iso.place(2, 17, 1, Crafty.e("2D, DOM, Human, player, LeftControls")
-				.attr({ x: 325, y: 225, z: 1 })
+				.attr({ x: 325, y: 225, z: 1 })				
 				.leftControls(5)
 				.Human());
 			
-			iso.place(3,12,0, Crafty.e("2D, DOM, solid, empty"));
+			iso.place(3,12,0, Crafty.e("2D, DOM, Item, nails"));
 			iso.place(6,15,0, Crafty.e("2D, DOM, hammer"));
-			iso.place(7,16,1, Crafty.e("2D, DOM,nails"));
+			iso.place(7,16,1, Crafty.e("2D, DOM, nails"));
 		});
 		
 		// YOUR GAME CODE
