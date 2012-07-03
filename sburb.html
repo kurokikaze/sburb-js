@@ -18,6 +18,12 @@
 					player: [0, 0],
 					player_turnwise: [5, 0],
 				});
+				
+				Crafty.sprite(63, 34, "hammer_nails.gif", {
+					hammer: [0, 0],
+					nails: [1, 0],
+					empty: [2, 0]
+				});
 				Crafty.scene("main"); //when everything is loaded, run the main scene
 			});
 
@@ -40,11 +46,17 @@
 			
 		});
 		
+		Crafty.c('Item', {
+			Item: function() {
+				this.requires('Collision, Grid');
+			}
+		});
 		Crafty.c('Human', {
 			Human: function() {
 				//setup animations
 				var dir_last = 'right';
 				this.requires("SpriteAnimation, Collision, Grid")
+				.collision([0,110], [84, 110], [84,138],[0,138])
 				.animate("walk_left", 3, 0, 4)
 				.animate("walk_right", 1, 0, 2)
 				//.animate("walk_up", 3, 3, 5)
@@ -100,13 +112,26 @@
 	});
 		Crafty.scene("main",function() {
 			Crafty.background('url("egbert_room.gif")');
-			var iso = Crafty.isometric.size(128);
+			var iso = Crafty.isometric.size(64);//.centerAt(10,10);
+			/*var area = iso.area(); //get the area
+			for(var y = area.y.start;y <= area.y.end;y++){
+			  for(var x = area.x.start ;x <= area.x.end;x++){
+				if (x == 3) {
+				  iso.place(x,y,0,Crafty.e("2D, DOM, Text").text("[" + x + ":" + y + "]")); //Display tiles in the Screen
+				  }
+				  
+			  }
+			}*/
 			//var player1 = ;;
 				
-			iso.place(3, 6, 1, Crafty.e("2D, DOM, Human, player, LeftControls")
+			iso.place(2, 17, 1, Crafty.e("2D, DOM, Human, player, LeftControls")
 				.attr({ x: 325, y: 225, z: 1 })
-				.leftControls(3)
+				.leftControls(5)
 				.Human());
+			
+			iso.place(3,12,0, Crafty.e("2D, DOM, solid, empty"));
+			iso.place(6,15,0, Crafty.e("2D, DOM, hammer"));
+			iso.place(7,16,1, Crafty.e("2D, DOM,nails"));
 		});
 		
 		// YOUR GAME CODE
