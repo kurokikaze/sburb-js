@@ -30,8 +30,20 @@
 					cd_rack: [0, 0]
 				});
 				
+				Crafty.sprite(103, 207, "con_air_poster.gif", {
+					con_air_poster: [0, 0]
+				});
+				
 				Crafty.sprite(212, 187, "pc_table.gif", {
 					pc_table: [0, 0]
+				});
+				
+				Crafty.sprite(165, 181, "cupboard.gif", {
+					cupboard: [0, 0]
+				});
+				
+				Crafty.sprite(265, 173, "johns_bed.gif", {
+					johns_bed: [0, 0]
 				});
 				
 				Crafty.sprite(151, 168, "chest.gif", {
@@ -69,10 +81,15 @@
 			
 		});
 		
-		Crafty.c('Wall', {
-			Wall: function(bound_box) {
-				this.requires("Collision, Grid")
-				.collision(bound_box);
+		Crafty.c('Thing', {
+			Thing: function(bound_box) {
+				this.requires("Draggable, Canvas")
+				.startDrag(function() {
+					this.tint("#969696", 0.3)
+				})
+				.stopDrag(function() {
+					this.tint("#969696", 0)
+				});
 				return this;
 			}
 			
@@ -82,7 +99,7 @@
 			Human: function() {
 				//setup animations
 				var dir_last = 'right';
-				this.requires("SpriteAnimation, Collision, Grid, WiredHitBox")
+				this.requires("SpriteAnimation, Collision, Grid")
 				.animate("walk_left", 3, 0, 4)
 				.animate("walk_right", 1, 0, 2)
 				.collision([18,99], [18, 99+18], [18+55,99+18],[18+55,99])
@@ -157,16 +174,19 @@
 			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,96], [184,96], [184,0])).attr({"x":466,"y":354,"w":184,"h":96});
 			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,0], [223,100], [0,100])).attr({"x":0,"y":350,"w":223,"h":100});
 			
-			iso.place(2, 17, 1, Crafty.e("2D, DOM, Human, player, LeftControls")
+			Crafty.e("2D, DOM, con_air_poster").attr({"x":190,"y":-35,"z":1});
+			iso.place(2,17, 1, Crafty.e("2D, DOM, Human, player, LeftControls")
 				//.attr({ x: 325, y: 225, z: 1 })				
 				.leftControls(3)
 				.Human());
 			
-			iso.place(3,12,0, Crafty.e("2D, DOM, Item, nails").Item(new Crafty.polygon([0,0],[63,0],[63,34],[0,34])));
 			iso.place(8,13,0, Crafty.e("2D, DOM, Item, magician_chest").Item(new Crafty.polygon([11,115],[104,74],[150,92],[150,139],[108,160])).attr({z:240}));
-			iso.place(2,17,0, Crafty.e("2D, DOM, Item, cd_rack").Item(new Crafty.polygon([1,133],[24,144],[43,130],[22,119])).attr({z:300}));
-			iso.place(3,17,0, Crafty.e("2D, DOM, Item, pc_table").Item(new Crafty.polygon([5,172],[80,120],[210,187],[23,187])).attr({z:330}));
-			iso.place(6,15,0, Crafty.e("2D, DOM, hammer"));
+			Crafty.e("2D, DOM, Item, cd_rack").Item(new Crafty.polygon([1,133],[24,144],[43,130],[22,119])).attr({x:183, y:285, z:300});
+			iso.place(3,17,0, Crafty.e("2D, DOM, Item, pc_table").Item(new Crafty.polygon([5,172],[80,120],[210,187],[23,187])).attr({z:340}));
+			Crafty.e("2D, DOM, Item, cupboard").Item(new Crafty.polygon([1,129],[77,170],[160,128],[77,98])).attr({x:-20, y: 200, z:220});
+			Crafty.e("2D, DOM, Item, johns_bed").Item(new Crafty.polygon([1,110],[159,172],[261,120],[124,63])).attr({x:192, y: 113, z:120});
+			
+			iso.place(6,15,0, Crafty.e("2D, Thing, hammer").Thing());
 			iso.place(7,16,1, Crafty.e("2D, DOM, nails"));
 			
 		});
