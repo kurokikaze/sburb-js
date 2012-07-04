@@ -68,6 +68,16 @@
 			}
 			
 		});
+		
+		Crafty.c('Wall', {
+			Wall: function(bound_box) {
+				this.requires("Collision, Grid")
+				.collision(bound_box);
+				return this;
+			}
+			
+		});
+		
 		Crafty.c('Human', {
 			Human: function() {
 				//setup animations
@@ -75,7 +85,7 @@
 				this.requires("SpriteAnimation, Collision, Grid, WiredHitBox")
 				.animate("walk_left", 3, 0, 4)
 				.animate("walk_right", 1, 0, 2)
-				.collision([0,90], [84, 90], [84,118],[0,118])
+				.collision([18,99], [18, 99+18], [18+55,99+18],[18+55,99])
 				//.animate("walk_up", 3, 3, 5)
 				//.animate("walk_down", 0, 3, 2)
 				.bind("NewDirection", //change direction when a direction change event is received
@@ -109,7 +119,7 @@
 				})
 				.onHit("Item", function () {
 					//Move unit out of solid tile
-					//console.log('Solid: ');
+					console.log('Solid: ');
 				})
 				.bind('Moved', function(from) {
 					this.z = this._y;
@@ -141,7 +151,12 @@
 			  }
 			}*/
 			//var player1 = ;;
-				
+			/* Walls */
+			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,0], [297,0], [297,170], [0,298])).attr({"x":0,"y":0,"w":298,"h":298});
+			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([7,0], [7,170], [360,290], [360,0])).attr({"x":290,"y":0,"w":353,"h":290});
+			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,96], [184,96], [184,0])).attr({"x":466,"y":354,"w":184,"h":96});
+			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,0], [223,100], [0,100])).attr({"x":0,"y":350,"w":223,"h":100});
+			
 			iso.place(2, 17, 1, Crafty.e("2D, DOM, Human, player, LeftControls")
 				//.attr({ x: 325, y: 225, z: 1 })				
 				.leftControls(3)
@@ -153,6 +168,7 @@
 			iso.place(3,17,0, Crafty.e("2D, DOM, Item, pc_table").Item(new Crafty.polygon([5,172],[80,120],[210,187],[23,187])).attr({z:330}));
 			iso.place(6,15,0, Crafty.e("2D, DOM, hammer"));
 			iso.place(7,16,1, Crafty.e("2D, DOM, nails"));
+			
 		});
 		
 		// YOUR GAME CODE
