@@ -46,7 +46,7 @@
 					johns_bed: [0, 0]
 				});
 				
-				Crafty.sprite(151, 168, "chest.gif", {
+				Crafty.sprite(171, 132, "chest_flat.gif", {
 					magician_chest: [0, 0],
 				});
 				
@@ -180,7 +180,7 @@
 				.leftControls(3)
 				.Human());
 			
-			iso.place(8,13,0, Crafty.e("2D, DOM, Item, magician_chest").Item(new Crafty.polygon([11,115],[104,74],[150,92],[150,139],[108,160])).attr({z:240}));
+			Crafty.e("2D, DOM, Item, magician_chest").Item(new Crafty.polygon([8,89],[95,130],[162,96],[93,48])).attr({x:510, y:230, z:212});
 			Crafty.e("2D, DOM, Item, cd_rack").Item(new Crafty.polygon([1,133],[24,144],[43,130],[22,119])).attr({x:183, y:285, z:300});
 			iso.place(3,17,0, Crafty.e("2D, DOM, Item, pc_table").Item(new Crafty.polygon([5,172],[80,120],[210,187],[23,187])).attr({z:340}));
 			Crafty.e("2D, DOM, Item, cupboard").Item(new Crafty.polygon([1,129],[77,170],[160,128],[77,98])).attr({x:-20, y: 200, z:220});
