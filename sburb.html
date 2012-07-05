@@ -81,6 +81,65 @@
 			
 		});
 		
+		Crafty.c('sylladex_card', {
+			sylladex_card: function() {
+				// 1000 is for sylladex overlay
+				this.requires('2D, DOM, Image').image('sylladex-card.gif').attr({'y':381,'z':1001});
+				this.item = false;
+				return this;
+			},
+			store: function(entity) {
+				if (!this.item) {
+					this.item = entity;
+				}
+				return this;
+			},
+			retrieve: function() {
+				var item = this.item;
+				this.item = false;
+				return item;
+			}
+		});
+		
+		Crafty.c('Sylladex', {
+			Sylladex: function() {
+				this.sylladex_size = 4;
+				this.cards = [];
+				this.drawn_size = 0;
+				this.requires('2D, DOM, Image').attr({'x':0, 'y':350, 'w':650,'h':100,'z':1000}).image('sylladex-overlay.gif');
+				this.visible = false;
+				
+				return this;
+			},
+			actualize: function() {
+				if (this.drawn_size < this.sylladex_size) {
+					var new_size = this.sylladex_size * 47 + (this.sylladex_size - 1) * 8;
+					var left_boundary = this.x + (this.w / 2 - new_size / 2);
+					for (var i = 0; i < this.sylladex_size - this.drawn_size; i++) {
+						this.cards.push(Crafty.e('sylladex_card').sylladex_card().attr({'x':(left_boundary + i * (47+8)), 'visible':this.visible}));
+					}
+				}
+				return this;
+			},
+			setsize: function(new_size) {
+				this.sylladex_size = new_size;
+			},
+			hide: function() {
+				this.visible = false;
+				for (card_id in this.cards) {
+					this.cards[card_id].visible = false;
+				}
+				return this;
+			},
+			show: function() {
+				this.visible = true;
+				for (card_id in this.cards) {
+					this.cards[card_id].visible = true;
+				}
+				return this;
+			}
+		});
+		
 		Crafty.c('Thing', {
 			Thing: function(bound_box) {
 				this.requires("Draggable, Canvas")
@@ -175,16 +234,18 @@
 			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,0], [223,100], [0,100])).attr({"x":0,"y":350,"w":223,"h":100});
 			
 			Crafty.e("2D, DOM, con_air_poster").attr({"x":190,"y":-35,"z":1});
-			iso.place(2,17, 1, Crafty.e("2D, DOM, Human, player, LeftControls")
-				//.attr({ x: 325, y: 225, z: 1 })				
+			Crafty.e("2D, DOM, Human, player, LeftControls")
+				.attr({ x: 139, y: 144, z: 144 })				
 				.leftControls(3)
-				.Human());
+				.Human();
 			
 			Crafty.e("2D, DOM, Item, magician_chest").Item(new Crafty.polygon([8,89],[95,130],[162,96],[93,48])).attr({x:510, y:230, z:212});
 			Crafty.e("2D, DOM, Item, cd_rack").Item(new Crafty.polygon([1,133],[24,144],[43,130],[22,119])).attr({x:183, y:285, z:300});
 			iso.place(3,17,0, Crafty.e("2D, DOM, Item, pc_table").Item(new Crafty.polygon([5,172],[80,120],[210,187],[23,187])).attr({z:340}));
 			Crafty.e("2D, DOM, Item, cupboard").Item(new Crafty.polygon([1,129],[77,170],[160,128],[77,98])).attr({x:-20, y: 200, z:220});
 			Crafty.e("2D, DOM, Item, johns_bed").Item(new Crafty.polygon([1,110],[159,172],[261,120],[124,63])).attr({x:192, y: 113, z:120});
+			
+			Crafty.e("Sylladex").Sylladex();
 			
 			iso.place(6,15,0, Crafty.e("2D, Thing, hammer").Thing());
 			iso.place(7,16,1, Crafty.e("2D, DOM, nails"));
