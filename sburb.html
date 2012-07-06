@@ -137,6 +137,11 @@
 					this.cards[card_id].visible = true;
 				}
 				return this;
+			},
+			store: function(item) {
+				this.show();
+				setTimeout(this.hide, 1000);
+				this.cards[0].store(item);
 			}
 		});
 		
@@ -158,7 +163,9 @@
 			Human: function() {
 				//setup animations
 				var dir_last = 'right';
-				this.requires("SpriteAnimation, Collision, Grid")
+				this.sylladex = Crafty(Crafty('Sylladex')[0]);
+				this.sylladex.actualize();
+				this.requires("SpriteAnimation, Collision, Grid, Keyboard")
 				.animate("walk_left", 3, 0, 4)
 				.animate("walk_right", 1, 0, 2)
 				.collision([18,99], [18, 99+18], [18+55,99+18],[18+55,99])
@@ -195,13 +202,13 @@
 				})
 				.onHit("Item", function () {
 					//Move unit out of solid tile
-					console.log('Solid: ');
+					//console.log('Solid: ');
 				})
 				.bind('Moved', function(from) {
 					this.z = this._y;
 					col_obj = this.hit('Item');
 					if (col_obj){
-						console.log('Solid (' + col_obj.length + '): ' + col_obj[0].type);
+						//console.log('Solid (' + col_obj.length + '): ' + col_obj[0].type);
 						if (col_obj[0].type == 'SAT') {
 							this.attr({x: from.x, y:from.y});
 						}
@@ -211,6 +218,32 @@
 					this.destroy();
 				// Subtract life and play scream sound :-)
 				});
+				
+				// Picking up items
+				this.bind('KeyDown', function() {
+					if (this.isDown('SPACE')) {
+						console.log('SPAAAAACE');
+						var things = Crafty('Thing');
+						var interactable = false;
+						var min_dist = 60;
+						for (var i = 0; i < things.length; i++) {
+							//if (thing_id)
+							var current_thing = Crafty(things[i]);
+							var distance = Math.sqrt(Math.pow(this.x + 42 - (current_thing.x + current_thing.w / 2), 2) + Math.pow(this.y + 120  - (current_thing.y + current_thing.h / 2 ), 2));
+							console.log('Thing ' + things[i] + ': ' + distance);
+							if (distance <= min_dist && current_thing.visible) {
+								min_dist = distance;
+								interactable = current_thing;
+							}
+						}
+						
+						if (interactable) {
+							this.sylladex.store(interactable);
+							interactable.visible = false;
+						}
+					}
+				});
+				
 				return this;
 			}
 		});
@@ -233,6 +266,8 @@
 			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,96], [184,96], [184,0])).attr({"x":466,"y":354,"w":184,"h":96});
 			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,0], [223,100], [0,100])).attr({"x":0,"y":350,"w":223,"h":100});
 			
+			Crafty.e("Sylladex").Sylladex();
+			
 			Crafty.e("2D, DOM, con_air_poster").attr({"x":190,"y":-35,"z":1});
 			Crafty.e("2D, DOM, Human, player, LeftControls")
 				.attr({ x: 139, y: 144, z: 144 })				
@@ -245,7 +280,7 @@
 			Crafty.e("2D, DOM, Item, cupboard").Item(new Crafty.polygon([1,129],[77,170],[160,128],[77,98])).attr({x:-20, y: 200, z:220});
 			Crafty.e("2D, DOM, Item, johns_bed").Item(new Crafty.polygon([1,110],[159,172],[261,120],[124,63])).attr({x:192, y: 113, z:120});
 			
-			Crafty.e("Sylladex").Sylladex();
+			
 			
 			iso.place(6,15,0, Crafty.e("2D, Thing, hammer").Thing());
 			iso.place(7,16,1, Crafty.e("2D, DOM, nails"));
