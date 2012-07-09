@@ -154,6 +154,7 @@
 			'retrieve': function() {
 				var item = this.item;
 				this.item = false;
+				this.item_image.visible = false;
 				delete this.item_image;
 				return item;
 			},
