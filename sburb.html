@@ -94,10 +94,45 @@
 			
 		});
 		
+		Crafty.c('Weapon', {
+			'kind': function(kind_abstratus) {
+				this.kind_abstratus = kind_abstratus;
+				return this;
+			}
+		});
+		
 		Crafty.c('sylladex_card', {
 			'sylladex_card': function() {
 				// 1000 is for sylladex overlay
 				this.requires('2D, DOM, Image, Draggable').image('sylladex-card.gif').attr({'y':381,'z':1001});
+				var that = this;
+				var initial_position = {'x':false,'y':false};
+				this.bind('StartDrag', function(event) {
+					//console.log('Started dragging at ' + event.x + ', ' + event.y);
+					if (this.peek().kind_abstratus) {
+						window.strife_specibus.show();
+					}
+					console.log('Initial position: ' + that.x + ', ' + that.y);
+					initial_position.x = that.x;
+					initial_position.y = that.y;
+				});
+				this.bind('StopDrag', function(event) {
+					that.x = initial_position.x;
+					that.y = initial_position.y;
+					console.log('Dropping item. Intersection test: ' + this.x + '/' + this.y);
+					console.log('Drop area: ' + window.strife_specibus.x + '/' + window.strife_specibus.y + '/' + (window.strife_specibus.x + window.strife_specibus.w) + '/' + (window.strife_specibus.y + window.strife_specibus.h));
+					if ((event.x > window.strife_specibus.x &&
+						event.y > window.strife_specibus.y &&
+						event.x < window.strife_specibus.x + window.strife_specibus.w &&
+						event.y < window.strife_specibus.y + window.strife_specibus.h) && this.peek().kind_abstratus) {
+						var item = this.retrieve();
+						var allocation_successful = window.strife_specibus.allocate(item);
+					}
+					if (!allocation_successful) {
+						console.log('Hiding strife specibus UI')
+						window.strife_specibus.hide();
+					}
+				});
 				this.item = false;
 				return this;
 			},
@@ -119,7 +154,7 @@
 			'retrieve': function() {
 				var item = this.item;
 				this.item = false;
-				unset(this.item_image);
+				delete this.item_image;
 				return item;
 			},
 			'is_empty':function() {
@@ -127,7 +162,7 @@
 			},
 			'peek':function() {
 				if (this.item != false) {
-					return this.item[0];
+					return this.item;
 				} else {
 					return false;
 				}
@@ -195,6 +230,56 @@
 			return this;
 		}
 		
+		Crafty.c('StrifeSpecibus', {
+			'StrifeSpecibus': function() {
+				this.kind_abstratus = false;
+				this.allocated = false;
+				this._abstratus_logo = false;
+				this.deck = [];
+				this.requires('2D, DOM, Image');
+				this.image('strife_specibus_empty.gif').attr({'x':575,'y':15,'w':75, 'h':95, 'z':1000});
+				this.hide();
+				window.strife_specibus = this;
+			},
+			'allocate': function(thing) {
+				console.log('Trying to allocate something to Strife Specibus');
+				if (thing.kind_abstratus) {
+					if (!this.kind_abstratus) {
+						this.kind_abstratus = thing.kind_abstratus;
+						// Allocating new kind abstratus to strife specibus
+						this._abstratus_logo = Crafty.e('2D, DOM, Image').attr({'x':this.x, 'y':this.y, 'z': this.z + 1}).image('ka/' + this.kind_abstratus + '.gif');
+						this.attach(this._abstratus_logo);
+						this.image('strife_specibus_allocated.gif');
+						this.show();
+						var that = this;
+						setTimeout(function() {
+							that.hide();
+						}, 1500);
+						return true;
+					}
+					if (this.kind_abstratus == thing.kind_abstratus) {
+						this.deck.push(thing);
+						this.allocated = thing;
+						return true;
+					}
+					return false;
+				}
+			},
+			'hide': function() {
+				if (this._abstratus_logo) {
+					this._abstratus_logo.visible = false;
+				}
+				this.visible = false;
+			},
+			'show': function() {
+				if (this._abstratus_logo) {
+					this._abstratus_logo.visible = true;
+				}
+				this.visible = true;
+			}
+			
+		});
+		
 		Crafty.c('Sylladex', {
 			Sylladex: function(fetch_modus) {
 				this.modus =  new FIFO(this);
@@ -203,6 +288,8 @@
 				this.drawn_size = 0;
 				this.requires('2D, DOM, Image').attr({'x':0, 'y':350, 'w':650,'h':100,'z':1000}).image('sylladex-overlay.gif');
 				this.hide();
+				
+				window.sylladex = this;
 				
 				return this;
 			},
@@ -233,7 +320,7 @@
 				}
 				return this;
 			},
-			store: function(item) {
+			'store': function(item) {
 				this.show();
 				var that = this;
 				setTimeout(function() {
@@ -421,6 +508,7 @@
 			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,0], [223,100], [0,100])).attr({"x":0,"y":350,"w":223,"h":100});
 			
 			Crafty.e("Sylladex").Sylladex();
+			Crafty.e('StrifeSpecibus').StrifeSpecibus();
 			
 			Crafty.e("2D, DOM, con_air_poster").attr({"x":190,"y":-35,"z":1});
 			Crafty.e("2D, DOM, Human, player, LeftControls")
@@ -436,10 +524,10 @@
 			
 			
 			
-			iso.place(6,15,0, Crafty.e("2D, Thing, hammer").Thing('cap_hammer.gif'));
+			iso.place(6,15,0, Crafty.e("2D, Thing, hammer, Weapon").Thing('cap_hammer.gif').kind('hammerkind'));
 			iso.place(7,16,1, Crafty.e("2D, Thing, nails").Thing('cap_nails.gif'));
 			Crafty.e("2D, DOM, Thing, cake").Thing('cap_cake.gif').attr({'x':556,'y':203,'z':250});
-			Crafty.e("2D, DOM, Thing, lm_poster").Thing('cap_poster.gif').attr({'x':62,'y':189,'z':1221});
+			Crafty.e("2D, DOM, Thing, lm_poster, Weapon").Thing('cap_poster.gif').attr({'x':62,'y':189,'z':1221}).kind('paperkind');
 			
 		});
 		
