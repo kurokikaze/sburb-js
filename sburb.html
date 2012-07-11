@@ -407,6 +407,14 @@
 				var dir_last = 'right';
 				this.sylladex = Crafty(Crafty('Sylladex')[0]);
 				this.sylladex.actualize();
+				
+				this._swing = Crafty.e('2D, DOM, Image').attr({'x':this.x + 20, 'y': this.y, 'z':this.z + 1})
+				this._swing.visible = false;
+				this._swing.origin(this._swing.w / 2, this._swing.h - this._swing.w / 2);
+				this.attach(this._swing);
+				
+				this.combat_state = 0;
+				
 				this.requires("SpriteAnimation, Collision, Grid, Keyboard")
 				.animate("walk_left", 3, 0, 4)
 				.animate("walk_right", 1, 0, 2)
@@ -493,9 +501,35 @@
 							this.sylladex.hide();
 						}
 					}
+					if (this.isDown('CTRL')) {
+						if (this.combat_state == 0 || this.combat_state == 2) {
+							this.attack();
+						} else {
+							// Bad luck, Brian
+						}
+					}
 				});
 				
 				return this;
+			},
+			'attack': function (){
+				this.combat_state = 1;
+				var that = this;
+				this._swing.visible = true;
+				var start_rotation = 0;
+				var i = 0;
+				var animation_timer = setInterval(function() {
+					console.log(start_rotation + i * 90 / 10);
+					that._swing.rotation = start_rotation + i * 90 / 10;
+					i++;
+				}, 600/10)
+				setTimeout(function() {
+					clearInterval(animation_timer);
+					that.combat_state = 0;
+					that._swing.visible = false;
+					that._swing.rotation = start_rotation;
+				}, 600);
+				
 			}
 		});
 		Crafty.scene("main",function() {
