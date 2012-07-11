@@ -117,6 +117,7 @@
 					initial_position.y = that.y;
 				});
 				this.bind('StopDrag', function(event) {
+					if (!event) return true;
 					that.x = initial_position.x;
 					that.y = initial_position.y;
 					console.log('Dropping item. Intersection test: ' + this.x + '/' + this.y);
@@ -186,22 +187,22 @@
 		
 		var FIFO = function(sylladex) {
 			this.store = function(new_item) {
-				console.log('Fetch modus at work');
-				console.log('Cards in sylladex: ' + sylladex.cards.length);
+				//console.log('Fetch modus at work');
+				//console.log('Cards in sylladex: ' + sylladex.cards.length);
 				var card = sylladex.cards.pop();
-				console.log('Ejecting card')
-				console.log('Cards in sylladex: ' + sylladex.cards.length);
+				//console.log('Ejecting card')
+				//console.log('Cards in sylladex: ' + sylladex.cards.length);
 				if (!card.is_empty()) {
-					console.log('Emptying ejected card')
+					//console.log('Emptying ejected card')
 					var item = card.retrieve();
 					item.visible = true;
 				}
-				console.log('Storing item on card');
-				console.log('Cards in sylladex: ' + sylladex.cards.length);
+				//console.log('Storing item on card');
+				//console.log('Cards in sylladex: ' + sylladex.cards.length);
 				card.store(new_item);
-				console.log('Inserting card back into sylladex')
+				//console.log('Inserting card back into sylladex')
 				sylladex.cards.unshift(card);
-				console.log('Cards in sylladex: ' + sylladex.cards.length);
+				//console.log('Cards in sylladex: ' + sylladex.cards.length);
 				this.rearrange();
 				//sylladex.cards
 				return this;
@@ -220,11 +221,18 @@
 				console.log('Rearranging cards');
 				var new_size = sylladex.sylladex_size * 47 + (sylladex.sylladex_size - 1) * 8;
 				var left_boundary = sylladex.x + (sylladex.w / 2 - new_size / 2);
+				var found_end = false;
 				for (var i = 0; i < sylladex.cards.length; i++) {
 					console.log('Card with item ' + sylladex.cards[i].peek() + ' number ' + i + ' -> ' + (left_boundary + i * (47+8)));
+					sylladex.cards[i].disableDrag();
 					sylladex.cards[i].attr({'x':(left_boundary + i * (47+8))});
 					if (!sylladex.cards[i].is_empty()) {
 						sylladex.cards[i].item_image.attr({'x':(left_boundary + i * (47+8))});
+					}
+					// Only the last card is draggable
+					if ((i == sylladex.cards.length - 1 || sylladex.cards[i + 1].is_empty()) && !found_end) {
+						sylladex.cards[i].enableDrag();
+						found_end = true;
 					}
 				}				
 			}
@@ -402,6 +410,7 @@
 				this.requires("SpriteAnimation, Collision, Grid, Keyboard")
 				.animate("walk_left", 3, 0, 4)
 				.animate("walk_right", 1, 0, 2)
+				.animate("hurt", 0, 1, 2)
 				.collision([18,99], [18, 99+18], [18+55,99+18],[18+55,99])
 				//.animate("walk_up", 3, 3, 5)
 				//.animate("walk_down", 0, 3, 2)
