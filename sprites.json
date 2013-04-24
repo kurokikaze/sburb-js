@@ -1,0 +1,95 @@
+[
+    {
+        "width" : 84,
+        "height" : 138,     
+        "image" : "jake_necessary.gif",
+        "sprites" : {
+		    "player": [0, 0],
+		    "player_turnwise": [5, 0]
+        }
+    },
+    {
+        "width" : 108,
+        "height" : 108,
+        "image" : "shale_imp.gif",
+        "sprites" : {
+			"shale_imp": [0, 0],
+			"shale_imp_turnwise": [5, 0]
+        }
+    },
+    {
+        "width" : 63, 
+        "height" : 34,
+        "image" : "hammer_nails.gif",
+        "sprites" : {
+		    "hammer": [0, 0],
+		    "nails": [1, 0],
+		    "empty": [0, 1],
+		    "red": [1, 1]
+        }
+    },
+    {
+        "width" :  45,
+        "height" : 145,
+        "image" : "cd_rack.gif",
+        "sprites" : {
+            "cd_rack": [0, 0]
+        }
+    },
+    {
+        "width" : 103,
+        "height" : 207,
+        "image" : "con_air_poster.gif",
+        "sprites" : {
+			"con_air_poster": [0, 0]
+        } 
+    },
+    {
+        "width" : 48,
+        "height" : 85,
+        "image" : "lm_poster.gif",
+        "sprites" : {
+            "lm_poster" : [0, 0]
+        }
+    },
+    {
+        "width" : 63,
+        "height" : 45,
+        "image" : "cake.gif",
+        "sprites" : {
+            "cake" : [0, 0]
+        }
+    },
+    {
+        "width" : 212,
+        "height" : 187,
+        "image" : "pc_table.gif",
+        "sprites" : {
+            "pc_table" : [0, 0]
+        }
+    },
+    {
+        "width" : 165,
+        "height" : 181,
+        "image" : "cupboard.gif",
+        "sprites" : {
+            "cupboard" : [0, 0]
+        }
+    },
+    {
+        "width" : 265,
+        "height" : 173,
+        "image" : "johns_bed.gif",
+        "sprites" : {
+            "johns_bed": [0, 0]
+        }
+    },
+    {
+        "width" : 171,
+        "height" : 132,
+        "image" : "chest_flat.gif",
+        "sprites" : {
+            "magician_chest": [0, 0]
+        }
+    }
+]

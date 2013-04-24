@@ -1,76 +1,41 @@
 <!DOCTYPE html>
 <head>	
 	<script type="text/javascript" src="crafty.js"></script>
+    <script src="/files/screen-files/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="assetManager.js"></script>
 	<title>SBURB</title>
 </head><!-- 84x138 -->
 <body>
 	<script type="text/javascript">
-	window.onload = function () {
+	$(function () {
+
+        var player_remote_id = false;
+
+        window.getPlayerId = function() {
+            return player_remote_id;
+        }
+
 		Crafty.init(650, 450);
 
 		Crafty.scene("loading", function () {
-			//load takes an array of assets and a callback when complete
-			Crafty.load(["egbert_room.gif", "jake_necessary.gif"], function () {
-				//Crafty.sprite(81, 127, "jade_small.gif", {
-				//	player: [0, 0]
-				//});
-				Crafty.sprite(84, 138, "jake_necessary.gif", {
-					player: [0, 0],
-					player_turnwise: [5, 0],
-				});
-				
-				Crafty.sprite(108, 108, "shale_imp.gif", {
-					shale_imp: [0, 0],
-					player_turnwise: [5, 0],
-				});
-				
-				Crafty.sprite(63, 34, "hammer_nails.gif", {
-					hammer: [0, 0],
-					nails: [1, 0],
-					empty: [0, 1],
-					red: [1, 1],
-				});
-				
-				Crafty.sprite(45, 145, "cd_rack.gif", {
-					cd_rack: [0, 0]
-				});
-				
-				Crafty.sprite(103, 207, "con_air_poster.gif", {
-					con_air_poster: [0, 0]
-				});
-				
-				Crafty.sprite(48, 85, "lm_poster.gif", {
-					lm_poster: [0, 0]
-				});
-				
-				Crafty.sprite(63, 45, "cake.gif", {
-					cake: [0, 0]
-				});
-				
-				Crafty.sprite(212, 187, "pc_table.gif", {
-					pc_table: [0, 0]
-				});
-				
-				Crafty.sprite(165, 181, "cupboard.gif", {
-					cupboard: [0, 0]
-				});
-				
-				Crafty.sprite(265, 173, "johns_bed.gif", {
-					johns_bed: [0, 0]
-				});
-				
-				Crafty.sprite(171, 132, "chest_flat.gif", {
-					magician_chest: [0, 0],
-				});
-				
-				Crafty.scene("main"); //when everything is loaded, run the main scene
-			});
-
-			//black background with some loading text
 			Crafty.background("#000");
 			Crafty.e("2D, DOM, Text").attr({ w: 100, h: 20, x: 150, y: 120 })
 					.text("SBURB Loading")
-					.css({ "text-align": "center" });
+					.css({ "color: #CCCCCC; text-align": "center" });
+            var manager = assetManager('/files/sprites.json', function() {
+                Crafty.load(manager.getImages(), function () {
+                    for (asset_id in manager.assets) {
+                        if (manager.assets.hasOwnProperty(asset_id)) {
+                            var asset = manager.assets[asset_id];
+                            Crafty.sprite(asset.width, asset.height, asset.image, asset.sprites);
+                        }
+                    }
+                    setTimeout(function() {
+				        Crafty.scene("main"); //when everything is loaded, run the main scene
+                    }, 1);
+                });
+            });
+
 		});
 		
 		Crafty.c("LeftControls", {
@@ -93,6 +58,18 @@
 			}
 			
 		});
+
+		Crafty.c('Wall', {
+			'Wall' : function() {
+
+			}
+		})
+		Crafty.c('Walkable', {
+			'Walkable': function(bound_box) {
+				this.shape = bound_box;
+				return this;
+			}
+		});
 		
 		Crafty.c('Weapon', {
 			'kind': function(kind_abstratus) {
@@ -104,15 +81,15 @@
 		Crafty.c('sylladex_card', {
 			'sylladex_card': function() {
 				// 1000 is for sylladex overlay
-				this.requires('2D, DOM, Image, Draggable').image('sylladex-card.gif').attr({'y':381,'z':1001});
+				this.requires('2D, DOM, Image, Draggable').image('sylladex-card.gif').attr({'y':381,'z':1001, 'w' : 47, 'h': 64});
 				var that = this;
-				var initial_position = {'x':false,'y':false};
+				var initial_position = {'x' : false,'y' : false};
 				this.bind('StartDrag', function(event) {
 					//console.log('Started dragging at ' + event.x + ', ' + event.y);
 					if (this.peek().kind_abstratus) {
 						window.strife_specibus.show();
 					}
-					console.log('Initial position: ' + that.x + ', ' + that.y);
+					// console.log('Initial position: ' + that.x + ', ' + that.y);
 					initial_position.x = that.x;
 					initial_position.y = that.y;
 				});
@@ -251,7 +228,7 @@
 				window.strife_specibus = this;
 			},
 			'allocate': function(thing) {
-				console.log('Trying to allocate something to Strife Specibus');
+				console.log('Trying to allocate something to Strife Specibus [kind is ' + thing.kind_abstratus + ']');
 				if (thing.kind_abstratus) {
 					if (!this.kind_abstratus) {
 						this.kind_abstratus = thing.kind_abstratus;
@@ -260,15 +237,20 @@
 						this.attach(this._abstratus_logo);
 						this.image('strife_specibus_allocated.gif');
 						this.show();
+
 						var that = this;
 						setTimeout(function() {
 							that.hide();
 						}, 1500);
-						return true;
+						//return true;
 					}
+
+                    console.log('Kinds abstrata: ' + this.kind_abstratus + ' / ' + thing.kind_abstratus);
 					if (this.kind_abstratus == thing.kind_abstratus) {
 						this.deck.push(thing);
 						this.allocated = thing;
+                        window.player._swing.attr({'w':thing.w, 'h':thing.h}).image(thing.captchalogue_image);
+                        
 						return true;
 					}
 					return false;
@@ -317,41 +299,58 @@
 			},
 			hide: function() {
 				this.visible = false;
-				for (card_id in this.cards) {
+				for (var card_id in this.cards) {
 					this.cards[card_id].hide();
 				}
 				return this;
 			},
 			show: function() {
 				this.visible = true;
-				for (card_id in this.cards) {
+				for (var card_id in this.cards) {
 					this.cards[card_id].show();
 				}
 				return this;
 			},
 			'store': function(item) {
-				this.show();
-				var that = this;
-				setTimeout(function() {
-					that.hide();
-				}, 1000);
-				/*var card = this.cards.pop();
-				console.log('Sylladex image: ' + item.__image)
-				card.store(item);
-				this.cards.unshift(card);)*/
+                // No need to show Sylladex UI if screen is extended
+                if (!window.UIextended) {
+				    this.show();
+				    var that = this;
+				    setTimeout(function() {
+					    that.hide();
+				    }, 1000);
+                }
+
 				this.modus.store(item);
+                $.post('/inventory', this.serialize(), function() {
+                    console.log('Posted serialized sylladex info');
+                });
 				return this;
-			}
+			},
+            'serialize' : function() {
+                var data = [];
+                for (var card_id in this.cards) {
+                    var item = this.cards[card_id].peek();
+                    if (item) {
+					    var card_data = {
+                            'img': item.captchalogue_image,
+                            'name' : 'Item'
+                        }
+                        data.push(card_data);
+                    }
+				}
+                return data;            
+            }
 		});
 		
 		Crafty.c('Thing', {
 			Thing: function(image_file) {
 				this.captchalogue_image = image_file;
-				this.requires("Draggable, Canvas")
-				.startDrag(function() {
+				this.requires("Draggable, Canvas");
+                this.bind('startDrag', function(e) {
 					this.tint("#969696", 0.3)
-				})
-				.stopDrag(function() {
+				});
+				this.bind('stopDrag', function(e) {
 					this.tint("#969696", 0)
 				});
 				return this;
@@ -404,13 +403,14 @@
 		Crafty.c('Human', {
 			Human: function() {
 				//setup animations
-				var dir_last = 'right';
+				this.dir_last = 'right';
 				this.sylladex = Crafty(Crafty('Sylladex')[0]);
 				this.sylladex.actualize();
 				
 				this._swing = Crafty.e('2D, DOM, Image').attr({'x':this.x + 20, 'y': this.y, 'z':this.z + 1})
 				this._swing.visible = false;
-				this._swing.origin(this._swing.w / 2, this._swing.h - this._swing.w / 2);
+				this._swing.origin(this._swing.w / 2, this._swing.h);
+				//this._swing.origin(this._swing.w/2, this._swing.h);
 				this.attach(this._swing);
 				
 				this.combat_state = 0;
@@ -420,22 +420,22 @@
 				.animate("walk_right", 1, 0, 2)
 				.animate("hurt", 0, 1, 2)
 				.collision([18,99], [18, 99+18], [18+55,99+18],[18+55,99])
-				//.animate("walk_up", 3, 3, 5)
-				//.animate("walk_down", 0, 3, 2)
 				.bind("NewDirection", //change direction when a direction change event is received
 					function (direction) {
 						if (direction.x < 0) {
 							if (!this.isPlaying("walk_left"))
 								this.stop().animate("walk_left", 10, -1);
-								dir_last = 'left';
+								this.dir_last = 'left';
+								this._swing.attr({'x':this.x + 30});
 						}
 						if (direction.x > 0) {
 							if (!this.isPlaying("walk_right"))
 								this.stop().animate("walk_right", 10, -1);
-								dir_last = 'right';
+								this.dir_last = 'right';
+								this._swing.attr({'x':this.x + 30});
 						}
 						if (direction.y < 0 || direction.y > 0) {
-							if (dir_last == 'right') {
+							if (this.dir_last == 'right') {
 								if (!this.isPlaying("walk_right"))
 									this.stop().animate("walk_right", 10, -1);
 							} else {
@@ -444,7 +444,7 @@
 							}
 						}
 						if(!direction.x && !direction.y) {
-							if (dir_last == 'right') {
+							if (this.dir_last == 'right') {
 								this.stop().sprite(0,0);
 							} else {
 								this.stop().sprite(5,0);
@@ -456,8 +456,27 @@
 					//console.log('Solid: ');
 				})
 				.bind('Moved', function(from) {
+					var that = this;
 					this.z = this._y;
-					col_obj = this.hit('Item');
+
+					var canStand = false;
+					// Can we stand on any of the walkable surfaces?
+					var surfaces = Crafty('Walkable');
+					surfaces.each(function(surface_id) {
+						console.log('Walkable object ' + surfaces[surface_id]);
+						var surface = Crafty(surfaces[surface_id]);
+						// [18,99], [18, 99+18], [18+55,99+18],[18+55,99]
+						if (surface.shape.containsPoint(that.x + 18, that.y + 99) &&
+							surface.shape.containsPoint(that.x + 18, that.y + 99 + 18) &&
+							surface.shape.containsPoint(that.x + 18 + 55, that.y + 99 + 18) &&
+							surface.shape.containsPoint(that.x + 18 + 55, that.y + 99)) {
+							canStand = true;
+						}
+					});
+					if (!canStand) {
+						this.attr({x: from.x, y:from.y});
+					}
+					var col_obj = this.hit('Item');
 					if (col_obj){
 						//console.log('Solid (' + col_obj.length + '): ' + col_obj[0].type);
 						if (col_obj[0].type == 'SAT') {
@@ -510,6 +529,8 @@
 					}
 				});
 				
+                window.player = this;
+
 				return this;
 			},
 			'attack': function (){
@@ -517,18 +538,27 @@
 				var that = this;
 				this._swing.visible = true;
 				var start_rotation = 0;
+				//var strike_direction = this.dir_last;
 				var i = 0;
 				var animation_timer = setInterval(function() {
 					console.log(start_rotation + i * 90 / 10);
-					that._swing.rotation = start_rotation + i * 90 / 10;
+					if (that.dir_last == 'right') {
+						that._swing.rotation = start_rotation + i * 90 / 10;
+					} else {
+						that._swing.rotation = start_rotation - i * 90 / 10;
+					}
 					i++;
-				}, 600/10)
+				}, 200/10)
 				setTimeout(function() {
 					clearInterval(animation_timer);
-					that.combat_state = 0;
+					// Cooldown
+					setTimeout(function() {
+						that.combat_state = 0;
+					}, 100);
+					//that.combat_state = 0;
 					that._swing.visible = false;
 					that._swing.rotation = start_rotation;
-				}, 600);
+				}, 200);
 				
 			}
 		});
@@ -536,20 +566,13 @@
 			Crafty.background('url("egbert_room.gif")');
 			var iso = Crafty.isometric.size(64);//.centerAt(10,10);
 			var area = iso.area(); //get the area
-			/*for(var y = area.y.start;y <= area.y.end;y++){
-			  for(var x = area.x.start ;x <= area.x.end;x++){
-				//if (x == 3) {
-				  iso.place(x,y,0,Crafty.e("2D, DOM, Text").text("[" + x + ":" + y + "]")); //Display tiles in the Screen
-				//  }
-				  
-			  }
-			}*/
-			//var player1 = ;;
 			/* Walls */
-			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,0], [297,0], [297,170], [0,298])).attr({"x":0,"y":0,"w":298,"h":298});
-			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([7,0], [7,170], [360,290], [360,0])).attr({"x":290,"y":0,"w":353,"h":290});
-			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,96], [184,96], [184,0])).attr({"x":466,"y":354,"w":184,"h":96});
-			Crafty.e("2D, DOM, Item").Item(new Crafty.polygon([0,0], [223,100], [0,100])).attr({"x":0,"y":350,"w":223,"h":100});
+			Crafty.e("2D, Walkable").Walkable(new Crafty.polygon([0,0], [360, 0], [360, 480], [0, 480]));
+
+			//Crafty.e("2D, DOM, Item, Wall").Item(new Crafty.polygon([0,0], [297,0], [297,170], [0,298])).attr({"x":0,"y":0,"w":298,"h":298});
+			//Crafty.e("2D, DOM, Item, Wall").Item(new Crafty.polygon([7,0], [7,170], [360,290], [360,0])).attr({"x":290,"y":0,"w":353,"h":290});
+			//Crafty.e("2D, DOM, Item, Wall").Item(new Crafty.polygon([0,96], [184,96], [184,0])).attr({"x":466,"y":354,"w":184,"h":96});
+			//Crafty.e("2D, DOM, Item, Wall").Item(new Crafty.polygon([0,0], [223,100], [0,100])).attr({"x":0,"y":350,"w":223,"h":100});
 			
 			Crafty.e("Sylladex").Sylladex();
 			Crafty.e('StrifeSpecibus').StrifeSpecibus();
@@ -577,7 +600,7 @@
 		
 		// YOUR GAME CODE
 		Crafty.scene("loading");
-	};
+	});
 	</script>
 </body>
 </html>
