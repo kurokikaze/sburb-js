@@ -322,9 +322,15 @@
                 }
 
 				this.modus.store(item);
-                $.post('/inventory', this.serialize(), function() {
-                    console.log('Posted serialized sylladex info');
-                });
+                $.ajax({
+                		'type' : 'POST',
+                		'url' :  '/inventory', 
+            			'data' : this.serialize(), 
+            			'success' : function() {
+                    		console.log('Posted serialized sylladex info');
+                		},
+                		'contentType' : 'application/json'
+            	});
 				return this;
 			},
             'serialize' : function() {
@@ -339,7 +345,7 @@
                         data.push(card_data);
                     }
 				}
-                return data;            
+                return JSON.stringify(data);            
             }
 		});
 		
@@ -463,7 +469,6 @@
 					// Can we stand on any of the walkable surfaces?
 					var surfaces = Crafty('Walkable');
 					surfaces.each(function(surface_id) {
-						console.log('Walkable object ' + surfaces[surface_id]);
 						var surface = Crafty(surfaces[surface_id]);
 						// [18,99], [18, 99+18], [18+55,99+18],[18+55,99]
 						if (surface.shape.containsPoint(that.x + 18, that.y + 99) &&
@@ -567,7 +572,7 @@
 			var iso = Crafty.isometric.size(64);//.centerAt(10,10);
 			var area = iso.area(); //get the area
 			/* Walls */
-			Crafty.e("2D, Walkable").Walkable(new Crafty.polygon([0,0], [360, 0], [360, 480], [0, 480]));
+			Crafty.e("2D, Walkable").Walkable(new Crafty.polygon([0,0], [360, 0], [360, 480], [0,480]));
 
 			//Crafty.e("2D, DOM, Item, Wall").Item(new Crafty.polygon([0,0], [297,0], [297,170], [0,298])).attr({"x":0,"y":0,"w":298,"h":298});
 			//Crafty.e("2D, DOM, Item, Wall").Item(new Crafty.polygon([7,0], [7,170], [360,290], [360,0])).attr({"x":290,"y":0,"w":353,"h":290});
@@ -578,6 +583,7 @@
 			Crafty.e('StrifeSpecibus').StrifeSpecibus();
 			
 			Crafty.e("2D, DOM, con_air_poster").attr({"x":190,"y":-35,"z":1});
+
 			Crafty.e("2D, DOM, Human, player, LeftControls")
 				.attr({ x: 139, y: 144, z: 144 })				
 				.leftControls(3)
