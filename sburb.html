@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>	
 	<script type="text/javascript" src="crafty.js"></script>
-    <script src="/files/screen-files/jquery-1.9.1.min.js"></script>
+    <script src="screen-files/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="assetManager.js"></script>
     <script type="text/javascript" src="Room.js"></script>
 	<title>SBURB</title>
@@ -23,7 +23,7 @@
 			Crafty.e("2D, DOM, Text").attr({ w: 100, h: 20, x: 150, y: 120 })
 					.text("SBURB Loading")
 					.css({ "color: #CCCCCC; text-align": "center" });
-            var manager = assetManager('/files/sprites.json', function() {
+            var manager = assetManager('sprites.json', function() {
                 Crafty.load(manager.getImages(), function () {
                     for (asset_id in manager.assets) {
                         if (manager.assets.hasOwnProperty(asset_id)) {
