@@ -1,4 +1,4 @@
-loadAssets([
+[
     {
         "width" : 84,
         "height" : 138,     
@@ -92,4 +92,4 @@ loadAssets([
             "magician_chest": [0, 0]
         }
     }
-]);
+]

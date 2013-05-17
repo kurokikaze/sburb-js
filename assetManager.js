@@ -19,7 +19,8 @@ var assetManager = function(definitionFile, callback) {
     );*/
     $.getJSON(definitionFile,
         function(data) {
-            console.log('HAHAHA');
+            manager.assets = data;
+            callback(manager);
     });
 
     this.getImages = function() {
