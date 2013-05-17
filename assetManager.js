@@ -2,11 +2,16 @@ var assetManager = function(definitionFile, callback) {
     var manager = this;
     this.assets = [];
 
-    $.get(definitionFile, function(data) {
-        console.log('Got assets definition');
-        manager.assets = data;
-        callback(manager);
-    }, 'json');
+    $.ajax({
+            'url' : definitionFile, 
+            'success' : function(data) {
+                console.log('Got assets definition');
+                manager.assets = data;
+                callback(manager);
+            }, 
+            'dataType' : 'jsonp',
+            'jsonp' : 'loadAssets'}
+    );
 
     this.getImages = function() {
         var images = [];
