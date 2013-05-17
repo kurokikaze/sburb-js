@@ -3,6 +3,7 @@
 	<script type="text/javascript" src="crafty.js"></script>
     <script src="/files/screen-files/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="assetManager.js"></script>
+    <script type="text/javascript" src="Room.js"></script>
 	<title>SBURB</title>
 </head><!-- 84x138 -->
 <body>
@@ -164,24 +165,14 @@
 		
 		var FIFO = function(sylladex) {
 			this.store = function(new_item) {
-				//console.log('Fetch modus at work');
-				//console.log('Cards in sylladex: ' + sylladex.cards.length);
 				var card = sylladex.cards.pop();
-				//console.log('Ejecting card')
-				//console.log('Cards in sylladex: ' + sylladex.cards.length);
 				if (!card.is_empty()) {
-					//console.log('Emptying ejected card')
 					var item = card.retrieve();
 					item.visible = true;
 				}
-				//console.log('Storing item on card');
-				//console.log('Cards in sylladex: ' + sylladex.cards.length);
 				card.store(new_item);
-				//console.log('Inserting card back into sylladex')
 				sylladex.cards.unshift(card);
-				//console.log('Cards in sylladex: ' + sylladex.cards.length);
 				this.rearrange();
-				//sylladex.cards
 				return this;
 			}
 			this.retrieve = function() {
